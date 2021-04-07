@@ -12,3 +12,7 @@ class ContrastiveLearningViewGenerator(object):
 
     def __call__(self, x):
         return [self.base_transform(x) for i in range(self.n_views)]
+
+    #pythonic
+    # __call__ -> allows object to behave like function
+    #https://www.geeksforgeeks.org/__call__-in-python/

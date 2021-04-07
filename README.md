@@ -3,14 +3,16 @@
 
 > add link to ppt here. add some images here to show simclr
 
-![Image of SimCLR Arch](https://sthalles.github.io/assets/contrastive-self-supervised/cover.png)
 
 ## Installation
 
 * Create pytorch env as mentioned in https://rc-docs.northeastern.edu/en/latest/using-discovery/workingwithgpu.html#using-gpus-with-pytorch
 ```
 $ conda activate <env_name>
-
+pip install torchsummary
+pip install torchinfo
+pip install modelsummary
+pip install pytorch-model-summary
 ```
 
 ## Usage

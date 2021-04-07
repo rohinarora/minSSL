@@ -4,7 +4,7 @@
 #SBATCH --time=4:00:00
 #SBATCH --job-name=2048
 #SBATCH --partition=multigpu
-#SBATCH --mem=10Gb
+#SBATCH --mem=20Gb
 #SBATCH --output=2048.%j.out
 #SBATCH --exclusive
 #SBATCH --gres=gpu:v100-sxm2:1

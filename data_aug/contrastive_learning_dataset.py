@@ -9,7 +9,7 @@ class ContrastiveLearningDataset:
     def __init__(self, root_folder):
         self.root_folder = root_folder
 
-    @staticmethod
+    @staticmethod # here static acts like utility function https://www.programiz.com/python-programming/methods/built-in/staticmethod
     def get_simclr_pipeline_transform(size, s=1):
         """Return a set of data augmentation transformations as described in the SimCLR paper."""
         color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
@@ -33,6 +33,10 @@ class ContrastiveLearningDataset:
                                                               self.get_simclr_pipeline_transform(96),
                                                               n_views),
                                                           download=True)}
+
+                # some new dataset will be added here
+                # feels easy to add dataset. just need to pass in the dataset image size to this function
+                # rest is standard torch dataset stuff 
 
         try:
             dataset_fn = valid_datasets[name]

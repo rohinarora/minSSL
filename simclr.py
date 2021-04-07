@@ -8,6 +8,7 @@ from torch.cuda.amp import GradScaler, autocast
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from utils import save_config_file, accuracy, save_checkpoint
+import time
 
 torch.manual_seed(0)
 
@@ -19,7 +20,7 @@ class SimCLR(object):
         self.model = kwargs['model'].to(self.args.device)
         self.optimizer = kwargs['optimizer']
         self.scheduler = kwargs['scheduler']
-        self.writer = SummaryWriter()
+        self.writer = SummaryWriter() #auto creates runs/Apr07_18-01-17_d1007 DIR
         logging.basicConfig(filename=os.path.join(self.writer.log_dir, 'training.log'), level=logging.DEBUG)
         self.criterion = torch.nn.CrossEntropyLoss().to(self.args.device)
 
@@ -56,6 +57,8 @@ class SimCLR(object):
 
     def train(self, train_loader):
 
+        start=time.time()
+
         scaler = GradScaler(enabled=self.args.fp16_precision)
 
         # save config file
@@ -64,17 +67,15 @@ class SimCLR(object):
         n_iter = 0
         logging.info(f"Start SimCLR training for {self.args.epochs} epochs.")
         logging.info(f"Training with gpu: {self.args.disable_cuda}.")
-
         for epoch_counter in range(self.args.epochs):
-            for images, _ in tqdm(train_loader):
-                images = torch.cat(images, dim=0)
-
-                images = images.to(self.args.device)
+            for images, _ in tqdm(train_loader): #dont need the labels
+                images = torch.cat(images, dim=0) #[2,batch_size,3,96,96]. images[0].shape = torch.Size([256, 3, 96, 96]) ; images[1].shape = torch.Size([256, 3, 96, 96])
+                images = images.to(self.args.device) #2*batch_size,3,96,96
 
                 with autocast(enabled=self.args.fp16_precision):
-                    features = self.model(images)
-                    logits, labels = self.info_nce_loss(features)
-                    loss = self.criterion(logits, labels)
+                    features = self.model(images) #features is [2*batch_size, out_dim]
+                    logits, labels = self.info_nce_loss(features) #logits.shape = (512, 511) ; labels.shape=torch.Size([512])
+                    loss = self.criterion(logits, labels) #loss is a single number
 
                 self.optimizer.zero_grad()
 
@@ -107,3 +108,5 @@ class SimCLR(object):
             'optimizer': self.optimizer.state_dict(),
         }, is_best=False, filename=os.path.join(self.writer.log_dir, checkpoint_name))
         logging.info(f"Model checkpoint and metadata has been saved at {self.writer.log_dir}.")
+        end=time.time()
+        logging.info(f"Runtime is  {end-start}.")
