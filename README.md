@@ -1,3 +1,5 @@
+# Under Construction - April 8, 2021
+
 # PyTorch SimCLR: A Simple Framework for Contrastive Learning of Visual Representations
 
 
@@ -17,20 +19,22 @@ pip install pytorch-model-summary
 
 ## Usage
 
+1. Pretrain 
 ```
-python run.py
-```
-
-* Refer ```python run.py --help``` to see the run options. Allows to easily update the hyperparameters
-
-Example : 
-```
-python run.py -data ./datasets --dataset-name stl10 --log-every-n-steps 100 --epochs 100 
+python pre_train.py --help #run options
+python pre_train.py #default config 
+python pre_train.py -data ./datasets --dataset-name stl10 --log-every-n-steps 100 --epochs 100 
 ```
 
-> onwards. take inspiration. make something like below
+2. Train/Evaluate 
+```
+python linear_eval.py --help #run options
+python linear_eval.py
+```
 
 
+
+<!-- 
 ## Feature Evaluation
 
 Feature evaluation is done using a linear model protocol. 
@@ -45,4 +49,4 @@ Note that SimCLR benefits from **longer training**.
 |----------------------------|---------|-------------------|---------------------------------------------------------------------------------|------------------------|--------------------------------|--------|--------|
 | Logistic Regression (Adam) | STL10   | SimCLR            | [ResNet-18](https://drive.google.com/open?id=14_nH2FkyKbt61cieQDiSbBVNP8-gtwgF) | 512                    | 128                            | 100    | 74.45  |
 | Logistic Regression (Adam) | CIFAR10 | SimCLR            | [ResNet-18](https://drive.google.com/open?id=1lc2aoVtrAetGn0PnTkOyFzPCIucOJq7C) | 512                    | 128                            | 100    | 69.82  |
-| Logistic Regression (Adam) | STL10   | SimCLR            | [ResNet-50](https://drive.google.com/open?id=1ByTKAUsdm_X7tLcii6oAEl5qFRqRMZSu) | 2048                   | 128                            | 50     | 70.075 |
+| Logistic Regression (Adam) | STL10   | SimCLR            | [ResNet-50](https://drive.google.com/open?id=1ByTKAUsdm_X7tLcii6oAEl5qFRqRMZSu) | 2048                   | 128                            | 50     | 70.075 | -->
