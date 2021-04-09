@@ -1,4 +1,8 @@
 __pycache__
+checkpoint*
+.ipynb_checkpoints
+*zip
+data
 datasets
 runs
 .vscode

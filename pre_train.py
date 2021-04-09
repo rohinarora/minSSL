@@ -12,7 +12,7 @@ model_names = sorted(name for name in models.__dict__
 
 #why is the pythonic stuff going on in above line
 
-parser = argparse.ArgumentParser(description='PyTorch SimCLR')
+parser = argparse.ArgumentParser(description='PyTorch SimCLR Pre Training')
 parser.add_argument('-data', metavar='DIR', default='./datasets',
                     help='path to dataset')
 parser.add_argument('-dataset-name', default='stl10',
@@ -52,6 +52,8 @@ parser.add_argument('--temperature', default=0.07, type=float,
 parser.add_argument('--n-views', default=2, type=int, metavar='N',
                     help='Number of views for contrastive learning training.')
 parser.add_argument('--gpu-index', default=0, type=int, help='GPU index.')
+parser.add_argument('--knn_test', action='store_true', help='Evaluate the self trained network via KNN. Boolean. Default False') #The store_true option automatically creates a default value of False. https://stackoverflow.com/questions/8203622/argparse-store-false-if-unspecified
+
 
 
 def main():
