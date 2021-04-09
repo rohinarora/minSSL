@@ -1,9 +1,8 @@
-# minSSL - Minimal PyTorch re-implementation of semi supervised learning algorithms
+# minSSL - Minimal re-implementation of semi supervised learning algorithms
 
-# Under Construction - April 8, 2021
+> Under Construction - April 8, 2021
 
-
-> add link to ppt here. add some images here to show simclr
+> add link to ppt here. add some images here to show simclr and moco
 
 
 ## Installation
@@ -63,4 +62,4 @@ Note that SimCLR benefits from **longer training**.
     - [ ] placeholder1
 - [ ] fp16 benchmarking/benefits
 - [ ] Integrate moco codebase
-- [ ] Redo the above tasks on moco
+- [ ] Reproduce moco results on small and big datasets
