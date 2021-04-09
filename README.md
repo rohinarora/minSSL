@@ -1,6 +1,6 @@
-# Under Construction - April 8, 2021
+# minSSL - Minimal PyTorch re-implementation of semi supervised learning algorithms
 
-# PyTorch SimCLR: A Simple Framework for Contrastive Learning of Visual Representations
+# Under Construction - April 8, 2021
 
 
 > add link to ppt here. add some images here to show simclr
@@ -50,3 +50,17 @@ Note that SimCLR benefits from **longer training**.
 | Logistic Regression (Adam) | STL10   | SimCLR            | [ResNet-18](https://drive.google.com/open?id=14_nH2FkyKbt61cieQDiSbBVNP8-gtwgF) | 512                    | 128                            | 100    | 74.45  |
 | Logistic Regression (Adam) | CIFAR10 | SimCLR            | [ResNet-18](https://drive.google.com/open?id=1lc2aoVtrAetGn0PnTkOyFzPCIucOJq7C) | 512                    | 128                            | 100    | 69.82  |
 | Logistic Regression (Adam) | STL10   | SimCLR            | [ResNet-50](https://drive.google.com/open?id=1ByTKAUsdm_X7tLcii6oAEl5qFRqRMZSu) | 2048                   | 128                            | 50     | 70.075 | -->
+
+
+## TODOs
+- [x] Pre_training and linear_eval workflow with simCLR
+- [ ] KNN test on pre_trained model
+- [ ] Reproduce paper claims on small datasets
+    - [ ] placeholder1
+    - [ ] placeholder1
+- [ ] Reproduce paper claims on imageNet size datasets (Once implemented, keep this in background and move on to next. will take days to complete)
+    - [ ] placeholder1
+    - [ ] placeholder1
+- [ ] fp16 benchmarking/benefits
+- [ ] Integrate moco codebase
+- [ ] Redo the above tasks on moco
