@@ -1,0 +1,3 @@
+* seed everything
+* vary temperature, epochs, batchsize, models resnet18 and resnet50 (try all torchvision models. vary the width as well. do all models react well to SSL?); 
+* future. auto ablation. ablation.py sees the arg.parser. takes in another file which user tells "what ablations to run". ablation.py gets result for all experiments in user's input file. + nice report + auto finds trends among things if they are present. + auto nice plots. 

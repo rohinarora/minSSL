@@ -5,30 +5,40 @@ from torchvision import models
 from data_aug.contrastive_learning_dataset import ContrastiveLearningDataset
 from models.resnet_simclr import ResNetSimCLR
 from simclr import SimCLR
+import random
+import numpy as np
+
+
+
+torch.manual_seed(42) #seed
+random.seed(42) #seed python
+np.random.seed(42) #seed numpy. try to only use randomness from pytorch. try not to mix numpy and pytorch for RNG
+# some applications and libraries further may use NumPy Random Generator objects, not the global RNG, and those will need to be seeded consistently as well.
+#save the RNG state when and if checkpointing
+
+# More, later : https://pytorch.org/docs/stable/notes/randomness.html https://pytorch.org/docs/stable/notes/faq.html
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
                      and callable(models.__dict__[name]))
 
-#why is the pythonic stuff going on in above line
+#what is the pythonic stuff going on in above line, how is the local/relative imports working inside models
 
 parser = argparse.ArgumentParser(description='PyTorch SimCLR Pre Training')
-parser.add_argument('-data', metavar='DIR', default='./datasets',
+parser.add_argument('--data', metavar='DIR', default='./datasets', #metavar is used in help messages. else default is --foo FOO
                     help='path to dataset')
-parser.add_argument('-dataset-name', default='stl10',
+parser.add_argument('--dataset-name', default='stl10',
                     help='dataset name', choices=['stl10', 'cifar10'])
-parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
-                    choices=model_names,
-                    help='model architecture: ' +
-                         ' | '.join(model_names) +
-                         ' (default: resnet18)')
+
+parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18', #metavar replaces all "choices" that would have printed explicitly generally; like in '--dataset-name'
+                    choices=model_names, help='model architecture: ' + ' | '.join(model_names) +' (default: resnet18)')
+
 parser.add_argument('-j', '--workers', default=32, type=int, metavar='N',
                     help='number of data loading workers (default: 32)')
-parser.add_argument('-e','--epoch''s', default=200, type=int, metavar='N',
+parser.add_argument('-e','--epochs', default=200, type=int, metavar='E',
                     help='number of total epochs to run (default: 200)')
 parser.add_argument('-b', '--batch-size', default=256, type=int,
-                    metavar='N',
-                    help='mini-batch size (default: 256). \nIn multi GPU setting \
+                    metavar='N', help='mini-batch size (default: 256). \nIn multi GPU setting \
                         this is the total batch size of all GPUs on the current node when '
                          'using Data Parallel or Distributed Data Parallel')
 parser.add_argument('--lr', '--learning-rate', default=0.0003, type=float,
@@ -59,11 +69,11 @@ parser.add_argument('--knn_test', action='store_true', help='Evaluate the self t
 def main():
     args = parser.parse_args()
     assert args.n_views == 2, "Only two view training is supported. Please use --n-views 2."
-    # check if gpu training is available
     if not args.disable_cuda and torch.cuda.is_available():
         args.device = torch.device('cuda')
-        cudnn.deterministic = True
-        cudnn.benchmark = True
+        cudnn.deterministic = True #https://discuss.pytorch.org/t/what-is-the-differenc-between-cudnn-deterministic-and-cudnn-benchmark/38054
+        cudnn.benchmark = False #For reproducibility. "good practice to turn off cudnn.benchmark when turning on cudnn.deterministic"
+        torch.set_deterministic(True) #set_deterministic is equivalent to use_deterministic_algorithms(bool)
     else:
         args.device = torch.device('cpu')
         args.gpu_index = -1
@@ -83,8 +93,8 @@ def main():
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=len(train_loader), eta_min=0,
                                                            last_epoch=-1)
 
-    #  It’s a no-op if the 'gpu_index' argument is a negative integer or None.
-    with torch.cuda.device(args.gpu_index):
+    
+    with torch.cuda.device(args.gpu_index): #  It’s a no-op if the 'gpu_index' argument is a negative integer or None. May need to change this for multiGPU?
         simclr = SimCLR(model=model, optimizer=optimizer, scheduler=scheduler, args=args)
         simclr.train(train_loader)
 
