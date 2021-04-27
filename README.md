@@ -63,3 +63,6 @@ Note that SimCLR benefits from **longer training**.
 - [ ] fp16 benchmarking/benefits
 - [ ] Integrate moco codebase
 - [ ] Reproduce moco results on small and big datasets
+
+## References
+1. https://github.com/sthalles/SimCLR
