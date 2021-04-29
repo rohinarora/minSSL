@@ -83,6 +83,7 @@ def update_parser_args_linear_eval():
     parser.add_argument('--log-every-n-steps', default=100, type=int, help='Log every n steps')
     parser.add_argument('--gpu-index', default=0, type=int, help='GPU index.')
     parser.add_argument('-opt','--optimizer', type=str, default="Adam",choices=['Adam', 'AdamW'],help='Optimizer to use',dest="opt")
+    parser.add_argument('-downstream','--downstream_test', type=str, default="fine_tune",choices=['fine_tune', 'linear_eval'],help='Downstream Task to Run',dest="downstream")
     args = parser.parse_args()
     if args.training_method=='SSL' and (args.run_dir is None):
         parser.error("--pre_train_ssl requires --run_dir flag. see help for more.")
@@ -117,23 +118,92 @@ def update_parser_args():
     update_cuda_flags(args)
     return args
 
-def get_linear_eval_model(args,config):
+def get_downstream_model(args,config):
     if args.training_method =="None": #No pretrained network
-        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset. improve this
-            model = torchvision.models.resnet18(pretrained=False).to(args.device)
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=False)
         elif config.arch == 'resnet50':
             model = torchvision.models.resnet50(pretrained=False)
         model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
         model=model.to(args.device)
     elif args.training_method =="ImageNet": #use ImageNet pretrained network
-        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset. improve this
-            model = torchvision.models.resnet18(pretrained=False).to(args.device)
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=True)
+        elif config.arch == 'resnet50':
+            model = torchvision.models.resnet50(pretrained=True)
+        model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
+        model=model.to(args.device)
+    elif args.training_method =="SSL": # use SSL pre_trained network
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=False, num_classes=10).to(args.device)
+        elif config.arch == 'resnet50':
+            model = torchvision.models.resnet50(pretrained=False, num_classes=10).to(args.device)
+        checkpoint_file=[name for name in glob.glob(args.run_dir+'/checkpoint*')][-1] #picks the last checkpoint if there are > 1
+        checkpoint = torch.load(checkpoint_file, map_location=args.device)
+        state_dict = checkpoint['state_dict'] #orderedDict
+        for k in list(state_dict.keys()):
+            if k.startswith('backbone') and not k.startswith('backbone.fc'):
+                state_dict[k[len("backbone."):]] = state_dict[k] # remove prefix from all but fc layer
+            del state_dict[k] #delete all layers with names from original pretrained network. 
+        log = model.load_state_dict(state_dict, strict=False)
+        assert log.missing_keys == ['fc.weight', 'fc.bias'] #load all but the FC layers
+    parameters = list(filter(lambda p: not p.requires_grad, model.parameters()))
+    assert len(parameters) == 0  # all params must require_grad
+    return model
+
+
+
+def get_fine_tune_model(args,config):
+    if args.training_method =="None": #No pretrained network
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=False)
         elif config.arch == 'resnet50':
             model = torchvision.models.resnet50(pretrained=False)
         model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
         model=model.to(args.device)
+    elif args.training_method =="ImageNet": #use ImageNet pretrained network
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=True)
+        elif config.arch == 'resnet50':
+            model = torchvision.models.resnet50(pretrained=True)
+        model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
+        model=model.to(args.device)
     elif args.training_method =="SSL": # use SSL pre_trained network
-        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset. improve this
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=False, num_classes=10).to(args.device)
+        elif config.arch == 'resnet50':
+            model = torchvision.models.resnet50(pretrained=False, num_classes=10).to(args.device)
+        checkpoint_file=[name for name in glob.glob(args.run_dir+'/checkpoint*')][-1] #picks the last checkpoint if there are > 1
+        checkpoint = torch.load(checkpoint_file, map_location=args.device)
+        state_dict = checkpoint['state_dict'] #orderedDict
+        for k in list(state_dict.keys()):
+            if k.startswith('backbone') and not k.startswith('backbone.fc'):
+                state_dict[k[len("backbone."):]] = state_dict[k] # remove prefix from all but fc layer
+            del state_dict[k] #delete all layers with names from original pretrained network. 
+        log = model.load_state_dict(state_dict, strict=False)
+        assert log.missing_keys == ['fc.weight', 'fc.bias'] #load all but the FC layers
+    parameters = list(filter(lambda p: not p.requires_grad, model.parameters()))
+    assert len(parameters) == 0  # all params must require_grad
+    return model
+
+
+def get_linear_eval_model(args,config):
+    if args.training_method =="None": #No pretrained network
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=False)
+        elif config.arch == 'resnet50':
+            model = torchvision.models.resnet50(pretrained=False)
+        model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
+        model=model.to(args.device)
+    elif args.training_method =="ImageNet": #use ImageNet pretrained network
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
+            model = torchvision.models.resnet18(pretrained=True)
+        elif config.arch == 'resnet50':
+            model = torchvision.models.resnet50(pretrained=True)
+        model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
+        model=model.to(args.device)
+    elif args.training_method =="SSL": # use SSL pre_trained network
+        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
             model = torchvision.models.resnet18(pretrained=False, num_classes=10).to(args.device)
         elif config.arch == 'resnet50':
             model = torchvision.models.resnet50(pretrained=False, num_classes=10).to(args.device)

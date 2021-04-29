@@ -14,14 +14,15 @@ from datetime import datetime
 
 torch.manual_seed(42)
 
-class Linear_Eval():
+class Downstream_Eval():
     def __init__(self, *args, **kwargs):
+        self.kind = kwargs['kind']
         self.args = kwargs['args']
         self.config = kwargs['config']
         self.model = kwargs['model'].to(self.args.device)
         self.optimizer = kwargs['optimizer']
         self.scheduler = kwargs['scheduler']
-        self.writer = SummaryWriter(log_dir = os.path.join('runs_le', datetime.now().strftime('%b%d_%H-%M-%S') + '_' + socket.gethostname() + self.args.comment))
+        self.writer = SummaryWriter(log_dir = os.path.join('runs_'+"self.kind", datetime.now().strftime('%b%d_%H-%M-%S') + '_' + socket.gethostname() + self.args.comment))
         logging.basicConfig(filename=os.path.join(self.writer.log_dir, 'training.log'), level=logging.DEBUG)
         self.criterion = torch.nn.CrossEntropyLoss().to(self.args.device)
 
