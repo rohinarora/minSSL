@@ -20,44 +20,21 @@ class ContrastiveLearningDataset: #define custom dataset class
                                               GaussianBlur(kernel_size=int(0.1 * size)),
                                               transforms.ToTensor()])
         return data_transforms
-
+    #ContrastiveLearningViewGenerator is a object with implements __call__ function. Hence can be used to replace typical transforms() function
     def get_dataset(self, name, n_views): # the use of lambda is pretty nice over here. without lambda, each dataset object is created when "valid_datasets" is called. with lambda, just the lambda functions are called. the actual object is created only when dict is called via the key. saves created ALL dataset objects. nice
-        valid_datasets = {'cifar10': lambda: datasets.CIFAR10(self.root_folder, train=True,
-                                                              transform=ContrastiveLearningViewGenerator(
-                                                                  self.get_simclr_pipeline_transform(32),
-                                                                  n_views),
-                                                              download=True),
-
-                          'stl10': lambda: datasets.STL10(self.root_folder, split='unlabeled',
-                                                          transform=ContrastiveLearningViewGenerator( #ContrastiveLearningViewGenerator is a object with implements __call__ function. Hence can be used to replace typical transforms() function
-                                                              self.get_simclr_pipeline_transform(96),
-                                                              n_views),
-                                                          download=True)}
-
-                # some new dataset will be added here
-                # feels easy to add dataset. just need to pass in the dataset image size to this function
-                # later : https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
-
+        valid_datasets = {'cifar10': lambda: datasets.CIFAR10(self.root_folder, train=True,transform=ContrastiveLearningViewGenerator(self.get_simclr_pipeline_transform(32), n_views),download=True),
+                          'stl10': lambda: datasets.STL10(self.root_folder, split='unlabeled',transform=ContrastiveLearningViewGenerator(self.get_simclr_pipeline_transform(96),n_views),download=True)}
+                # some new dataset will be added here. need to pass in the dataset image size to this function. later : https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
         try:
             dataset_fn = valid_datasets[name] #lambda fn
         except KeyError:
-            raise InvalidDatasetSelection() #return lambda_fn returns the object`
+            raise InvalidDatasetSelection() 
         else:
-            return dataset_fn() #
+            return dataset_fn()#return lambda_fn returns the datasets object
 
     def get_dataset_no_lambda(self, name, n_views):
-        valid_datasets = {'cifar10': datasets.CIFAR10(self.root_folder, train=True,
-                                                              transform=ContrastiveLearningViewGenerator(
-                                                                  self.get_simclr_pipeline_transform(32),
-                                                                  n_views),
-                                                              download=True),
-
-                          'stl10': datasets.STL10(self.root_folder, split='unlabeled',
-                                                          transform=ContrastiveLearningViewGenerator(
-                                                              self.get_simclr_pipeline_transform(96),
-                                                              n_views),
-                                                          download=True)}
-
+        valid_datasets = {'cifar10': datasets.CIFAR10(self.root_folder, train=True,transform=ContrastiveLearningViewGenerator(self.get_simclr_pipeline_transform(32), n_views),download=True),
+                          'stl10': datasets.STL10(self.root_folder, split='unlabeled',transform=ContrastiveLearningViewGenerator(self.get_simclr_pipeline_transform(96),n_views),download=True)}
         try:
             dataset_fn = valid_datasets[name]
         except KeyError:
