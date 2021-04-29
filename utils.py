@@ -66,7 +66,6 @@ def update_cuda_flags(args):
 
 def update_parser_args_linear_eval():
     parser = argparse.ArgumentParser(description='PyTorch Self Supervised Learning Linear Evaluation')
-    parser.add_argument('--data', metavar='DIR', default='./datasets', help='path to dataset')
     parser.add_argument('-tm','--training_method', default="None", choices=['SSL', 'ImageNet','None'], help='Backend to use for pretraining. Default=None.')
     parser.add_argument('-rd','--run_dir', type=str, default=None,help='Run DIR of pre train network. run DIR has the config file and saved models. Must pass if pre_train_ssl is true') 
     parser.add_argument('-cf','--config_file', type=str, default=None,help='Config file for Supervised Pretrained Network. Must pass if pre_train_ssl is false') 
@@ -74,7 +73,7 @@ def update_parser_args_linear_eval():
     parser.add_argument('-e','--epochs', default=200, type=int, metavar='E', help='number of total epochs to run (default: 200)')
     parser.add_argument('-b', '--batch-size', default=256, type=int, metavar='N', help='mini-batch size (default: 256). \nIn multi GPU setting this is the total batch size of all GPUs on the current node when using Data Parallel or Distributed Data Parallel')
     parser.add_argument('--lr', '--learning-rate', default=0.0003, type=float, metavar='LR', help='initial learning rate (default=0.0003)', dest='lr')
-    parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
+    parser.add_argument('--wd', '--weight-decay', default=0.0008, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
     parser.add_argument('--seed', default=42, type=int, help='seed for initializing training (default=42)')
     parser.add_argument('--disable-cuda', action='store_true', help='Disable CUDA')
     parser.add_argument('--fp16-precision', action='store_true', help='Whether or not to use 16-bit precision GPU training.')

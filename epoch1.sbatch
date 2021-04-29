@@ -10,8 +10,4 @@
 #SBATCH --gres=gpu:v100-sxm2:1
 
 source activate simclr1
-python pre_train.py -e 250 &
-sleep 60
-python pre_train.py -e 300 &
-sleep 60
-python pre_train.py -e 350 
+python pre_train.py -e 300

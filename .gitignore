@@ -5,6 +5,8 @@ checkpoint*
 .ipynb_checkpoints
 *zip
 data
+runs_le
+*sbatch
 datasets
 runs
 .vscode

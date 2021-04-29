@@ -19,11 +19,11 @@ from linear_eval_dataset import CustomDataset
 def main():
     args=update_parser_args_linear_eval()
     config=get_config(args)
-    LE_dataset = CustomDataset(args.data)
+    LE_dataset = CustomDataset(config.data)
     train_ds,test_ds=LE_dataset.get_dataset(config.dataset_name)
     train_loader,test_loader = get_dataloader(args, train_ds,test_ds)
     model=get_linear_eval_model(args,config)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, weight_decay=0.0008)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=len(train_loader), eta_min=0, last_epoch=-1)
     with torch.cuda.device(args.gpu_index):
         lin_eval = Linear_Eval(model=model, optimizer=optimizer, scheduler=scheduler, args=args)
