@@ -51,18 +51,7 @@ Note that SimCLR benefits from **longer training**.
 | Logistic Regression (Adam) | STL10   | SimCLR            | [ResNet-50](https://drive.google.com/open?id=1ByTKAUsdm_X7tLcii6oAEl5qFRqRMZSu) | 2048                   | 128                            | 50     | 70.075 | -->
 
 
-## TODOs
-- [x] Pre_training and linear_eval workflow with simCLR
-- [ ] KNN test on pre_trained model
-- [ ] Reproduce paper claims on small datasets
-    - [ ] placeholder1
-    - [ ] placeholder1
-- [ ] Reproduce paper claims on imageNet size datasets (Once implemented, keep this in background and move on to next. will take days to complete)
-    - [ ] placeholder1
-    - [ ] placeholder1
-- [ ] fp16 benchmarking/benefits
-- [ ] Integrate moco codebase
-- [ ] Reproduce moco results on small and big datasets
+
 
 ## References
 1. https://github.com/sthalles/SimCLR

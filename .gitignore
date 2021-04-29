@@ -6,6 +6,7 @@ checkpoint*
 *zip
 data
 runs_le
+runs_fine_tune
 *sbatch
 datasets
 runs
