@@ -8,6 +8,8 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from utils import save_config_file, accuracy, save_checkpoint
 import time
+import socket
+from datetime import datetime
 
 torch.manual_seed(42)
 
@@ -17,7 +19,7 @@ class SimCLR():
         self.model = kwargs['model'].to(self.args.device)
         self.optimizer = kwargs['optimizer']
         self.scheduler = kwargs['scheduler']
-        self.writer = SummaryWriter() #auto creates runs/Apr07_18-01-17_d1007 DIR
+        self.writer = SummaryWriter(log_dir = os.path.join('runs', datetime.now().strftime('%b%d_%H-%M-%S') + '_' + socket.gethostname() + self.args.comment))
         logging.basicConfig(filename=os.path.join(self.writer.log_dir, 'training.log'), level=logging.DEBUG)
         self.criterion = torch.nn.CrossEntropyLoss().to(self.args.device)
 
@@ -40,7 +42,7 @@ class SimCLR():
     def train(self, train_loader):
         start=time.time()
         scaler = GradScaler(enabled=self.args.fp16_precision)
-        save_config_file(self.writer.log_dir, self.args) # save config file. fix the device cuda thing. find some workaround here locally to write to log file
+        save_config_file(self.writer.log_dir, self.args)
         n_iter = 0
         logging.info(f"Start SimCLR training for {self.args.epochs} epochs.")
         logging.info(f"Training with gpu. args.disable_cuda flag: {self.args.disable_cuda}.")
@@ -57,7 +59,7 @@ class SimCLR():
                 scaler.step(self.optimizer)
                 scaler.update()
                 if n_iter % self.args.log_every_n_steps == 0:
-                    top1, top5 = accuracy(logits, labels, topk=(1, 5))
+                    top1, top5 = accuracy(logits, labels, topk=(1, 5)) #top1 accuracy could have been summed over entire epoch rather than recorded every minibatch. too late to change. later
                     self.writer.add_scalar('loss', loss, global_step=n_iter)
                     self.writer.add_scalar('acc/top1', top1[0], global_step=n_iter)
                     self.writer.add_scalar('acc/top5', top5[0], global_step=n_iter)

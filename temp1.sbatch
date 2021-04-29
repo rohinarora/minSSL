@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --nodes=1
-#SBATCH -c 8
+#SBATCH -c 1
 #SBATCH --time=24:00:00
 #SBATCH --job-name=temp4
 #SBATCH --partition=multigpu
@@ -14,6 +14,4 @@ python pre_train.py --temperature 0.035 &
 sleep 60
 python pre_train.py --temperature 0.105 &
 sleep 60
-python pre_train.py --temperature 0.14 &
-sleep 60
-python pre_train.py --temperature 0.175
+python pre_train.py --temperature 0.14

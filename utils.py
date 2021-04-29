@@ -17,13 +17,15 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     if is_best:
         shutil.copyfile(filename, 'model_best.pth.tar')
 
-
 def save_config_file(model_checkpoints_folder, args):
     if not os.path.exists(model_checkpoints_folder):
         os.makedirs(model_checkpoints_folder)
-    with open(os.path.join(model_checkpoints_folder, 'config.yml'), 'w') as outfile:
+    filename=os.path.join(model_checkpoints_folder, 'config.yml')
+    append_write = 'a' if os.path.exists(filename) else 'w'
+    with open(filename, append_write) as outfile:
+        if append_write=='a':
+            outfile.write("\n\nInput config file : \n")
         yaml.dump(args, outfile, default_flow_style=False)
-
 
 def accuracy(output, target, topk=(1,)):
     """Computes the accuracy over the k top predictions for the specified values of k"""
@@ -66,6 +68,7 @@ def update_cuda_flags(args):
 
 def update_parser_args_linear_eval():
     parser = argparse.ArgumentParser(description='PyTorch Self Supervised Learning Linear Evaluation')
+    parser.add_argument('-cmt','--comment', default="",  type=str, help='Exp comment. Appended to run_dir name',dest='comment')
     parser.add_argument('-tm','--training_method', default="None", choices=['SSL', 'ImageNet','None'], help='Backend to use for pretraining. Default=None.')
     parser.add_argument('-rd','--run_dir', type=str, default=None,help='Run DIR of pre train network. run DIR has the config file and saved models. Must pass if pre_train_ssl is true') 
     parser.add_argument('-cf','--config_file', type=str, default=None,help='Config file for Supervised Pretrained Network. Must pass if pre_train_ssl is false') 
@@ -79,6 +82,7 @@ def update_parser_args_linear_eval():
     parser.add_argument('--fp16-precision', action='store_true', help='Whether or not to use 16-bit precision GPU training.')
     parser.add_argument('--log-every-n-steps', default=100, type=int, help='Log every n steps')
     parser.add_argument('--gpu-index', default=0, type=int, help='GPU index.')
+    parser.add_argument('-opt','--optimizer', type=str, default="Adam",choices=['Adam', 'AdamW'],help='Optimizer to use',dest="opt")
     args = parser.parse_args()
     if args.training_method=='SSL' and (args.run_dir is None):
         parser.error("--pre_train_ssl requires --run_dir flag. see help for more.")
@@ -90,6 +94,8 @@ def update_parser_args_linear_eval():
 def update_parser_args():
     model_names = sorted(name for name in models.__dict__  if name.islower() and not name.startswith("__") and callable(models.__dict__[name])) #to check : local/relative imports working inside models
     parser = argparse.ArgumentParser(description='PyTorch SimCLR Pre Training')
+    parser.add_argument('-cmt','--comment', default="",  type=str, help='Exp comment. Appended to run_dir name',dest='comment')
+    parser.add_argument('-opt','--optimizer', type=str, default="Adam",choices=['Adam', 'AdamW'],help='Optimizer to use',dest="opt")
     parser.add_argument('--data', metavar='DIR', default='./datasets', help='path to dataset') #metavar is used in help messages. else default is --foo FOO
     parser.add_argument('--dataset-name', default='stl10', help='dataset name', choices=['stl10', 'cifar10'])
     parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18', choices=model_names, help='model architecture: ' + ' | '.join(model_names) +' (default: resnet18)') #metavar replaces all "choices" that would have printed explicitly generally; like in '--dataset-name'
