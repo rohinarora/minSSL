@@ -1,0 +1,43 @@
+!!python/object:argparse.Namespace
+batch_size: 256
+comment: _default_cfg_linear_ssl_e4
+config_file: null
+device: cuda
+disable_cuda: false
+downstream: linear_eval
+epochs: 4
+fp16_precision: false
+frac: null
+gpu_index: 0
+log_every_n_steps: 100
+lr: 0.0003
+opt: Adam
+run_dir: runs/Apr30_03-51-19_d3099_default
+seed: 42
+training_method: SSL
+weight_decay: 0.0008
+workers: 32
+
+
+Input config file : 
+!!python/object:argparse.Namespace
+arch: resnet18
+batch_size: 256
+comment: _default
+data: ./datasets
+dataset_name: stl10
+device: cuda
+disable_cuda: false
+epochs: 200
+fp16_precision: false
+gpu_index: 0
+knn_test: false
+log_every_n_steps: 100
+lr: 0.0003
+n_views: 2
+opt: Adam
+out_dim: 128
+seed: 42
+temperature: 0.07
+weight_decay: 0.0008
+workers: 32

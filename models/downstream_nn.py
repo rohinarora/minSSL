@@ -31,10 +31,10 @@ class Downstream_NN(nn.Module):
             parameters = list(filter(lambda p: not p.requires_grad, self.model.parameters()))
             assert len(parameters) == 0  # all params must require_grad
         elif args.downstream=="linear_eval":
-            for name, param in model.named_parameters(): # freeze all layers but the last fc
+            for name, param in self.model.named_parameters(): # freeze all layers but the last fc
                 if name not in ['fc.weight', 'fc.bias']:
                     param.requires_grad = False
-            parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
+            parameters = list(filter(lambda p: p.requires_grad, self.model.parameters()))
             assert len(parameters) == 2  # fc.weight, fc.bias
 
     def _get_basemodel(self, model_name):

@@ -56,6 +56,7 @@ def update_cuda_flags(args):
         args.gpu_index = -1
 
 def restricted_float(x):
+    x=float(x)
     if x < 0.1 or x > 1.0:
         raise argparse.ArgumentTypeError("%r not in range [0.1, 1.0]"%(x,))
     return x
