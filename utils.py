@@ -55,6 +55,11 @@ def update_cuda_flags(args):
         args.device = 'cpu'
         args.gpu_index = -1
 
+def restricted_float(x):
+    if x < 0.1 or x > 1.0:
+        raise argparse.ArgumentTypeError("%r not in range [0.1, 1.0]"%(x,))
+    return x
+
 def update_parser_args(task):
     if task=="pre_train":
         model_names = sorted(name for name in models.__dict__  if name.islower() and not name.startswith("__") and callable(models.__dict__[name])) #to check : local/relative imports working inside models
@@ -72,7 +77,7 @@ def update_parser_args(task):
         parser.add_argument('-rd','--run_dir', type=str, default=None,help='Run DIR of pre train network. run DIR has the config file and saved models. Must pass if pre_train_ssl is true') 
         parser.add_argument('-cf','--config_file', type=str, default=None,help='Config file for Supervised Pretrained Network. Must pass if pre_train_ssl is false') 
         parser.add_argument('-downstream','--downstream_task', type=str, required=True,choices=['fine_tune', 'linear_eval'],help='Downstream Task to Run',dest="downstream")
-        parser.add_argument('-frac','--fraction_labels', type=str, required=True,choices=['fine_tune', 'linear_eval'],help='Downstream Task to Run',dest="downstream")
+        parser.add_argument('-frac','--fraction_labels', type=restricted_float,help='Fraction of train labels to be used',dest="frac",default=None)
     parser.add_argument('--lr', '--learning-rate', default=0.0003, type=float, metavar='LR', help='initial learning rate (default=0.0003)', dest='lr')
     parser.add_argument('--wd', '--weight-decay', default=0.0008, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
     parser.add_argument('--log-every-n-steps', default=100, type=int, help='Log every n steps')
@@ -86,7 +91,7 @@ def update_parser_args(task):
     parser.add_argument('-cmt','--comment', default="",  type=str, help='Exp comment. Appended to run_dir name',dest='comment')
     parser.add_argument('-opt','--optimizer', type=str, default="Adam",choices=['Adam', 'AdamW'],help='Optimizer to use',dest="opt")
     args = parser.parse_args()
-    if task=="downstream":
+    if task=="downstream": 
         if args.training_method=='SSL' and (args.run_dir is None):
             parser.error("This mode requires --run_dir flag. See help for more.")
         elif (args.training_method=='ImageNet' or args.training_method=='Scratch') and (args.config_file is None):
