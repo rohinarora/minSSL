@@ -12,6 +12,9 @@ from torch.utils.data import DataLoader
 from torchvision import models
 import torchvision.transforms as transforms
 
+# model_dict={"resnet18": models.resnet18(pretrained=pretrained, num_classes=out_dim),
+#             "resnet50": models.resnet50(pretrained=pretrained, num_classes=out_dim)}
+
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
@@ -68,7 +71,8 @@ def update_parser_args(task):
         parser.add_argument('-tm','--training_method', required=True, choices=['SSL', 'ImageNet','Scratch'], help='Backend to use for pretraining. Default=None.')
         parser.add_argument('-rd','--run_dir', type=str, default=None,help='Run DIR of pre train network. run DIR has the config file and saved models. Must pass if pre_train_ssl is true') 
         parser.add_argument('-cf','--config_file', type=str, default=None,help='Config file for Supervised Pretrained Network. Must pass if pre_train_ssl is false') 
-        parser.add_argument('-downstream','--downstream_test', type=str, required=True,choices=['fine_tune', 'linear_eval'],help='Downstream Task to Run',dest="downstream")
+        parser.add_argument('-downstream','--downstream_task', type=str, required=True,choices=['fine_tune', 'linear_eval'],help='Downstream Task to Run',dest="downstream")
+        parser.add_argument('-frac','--fraction_labels', type=str, required=True,choices=['fine_tune', 'linear_eval'],help='Downstream Task to Run',dest="downstream")
     parser.add_argument('--lr', '--learning-rate', default=0.0003, type=float, metavar='LR', help='initial learning rate (default=0.0003)', dest='lr')
     parser.add_argument('--wd', '--weight-decay', default=0.0008, type=float, metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
     parser.add_argument('--log-every-n-steps', default=100, type=int, help='Log every n steps')
@@ -84,51 +88,11 @@ def update_parser_args(task):
     args = parser.parse_args()
     if task=="downstream":
         if args.training_method=='SSL' and (args.run_dir is None):
-            parser.error("--pre_train_ssl requires --run_dir flag. See help for more.")
-        elif (args.config_file is None):
+            parser.error("This mode requires --run_dir flag. See help for more.")
+        elif (args.training_method=='ImageNet' or args.training_method=='Scratch') and (args.config_file is None):
             parser.error("Supervised Pretrained/Train from scratch requires --config_file flag. See help for more.")
     update_cuda_flags(args)
     return args
-
-def get_downstream_model(args,config):
-    if args.training_method =="Scratch":
-        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
-            model = torchvision.models.resnet18(pretrained=False)
-        elif config.arch == 'resnet50':
-            model = torchvision.models.resnet50(pretrained=False)
-        model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
-        model=model.to(args.device)
-    elif args.training_method =="ImageNet": #use ImageNet pretrained network
-        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
-            model = torchvision.models.resnet18(pretrained=True)
-        elif config.arch == 'resnet50':
-            model = torchvision.models.resnet50(pretrained=True)
-        model.fc = Linear(in_features=model.fc.in_features, out_features=10, bias=(model.fc.bias is not None)) #https://github.com/pytorch/vision/issues/1040
-        model=model.to(args.device)
-    elif args.training_method =="SSL": # use SSL pre_trained network
-        if config.arch == 'resnet18': #make the below lines work with any "torchvision" model, any number of classes, any dataset
-            model = torchvision.models.resnet18(pretrained=False, num_classes=10).to(args.device)
-        elif config.arch == 'resnet50':
-            model = torchvision.models.resnet50(pretrained=False, num_classes=10).to(args.device)
-        checkpoint_file=[name for name in glob.glob(args.run_dir+'/checkpoint*')][-1] #picks the last checkpoint if there are > 1
-        checkpoint = torch.load(checkpoint_file, map_location=args.device)
-        state_dict = checkpoint['state_dict'] #orderedDict
-        for k in list(state_dict.keys()):
-            if k.startswith('backbone') and not k.startswith('backbone.fc'):
-                state_dict[k[len("backbone."):]] = state_dict[k] # remove prefix from all but fc layer
-            del state_dict[k] #delete all layers with names from original pretrained network. 
-        log = model.load_state_dict(state_dict, strict=False)
-        assert log.missing_keys == ['fc.weight', 'fc.bias'] #load all but the FC layers
-    if args.downstream=="fine_tune":
-        parameters = list(filter(lambda p: not p.requires_grad, model.parameters()))
-        assert len(parameters) == 0  # all params must require_grad
-    elif args.downstream=="linear_eval":
-        for name, param in model.named_parameters(): # freeze all layers but the last fc
-            if name not in ['fc.weight', 'fc.bias']:
-                param.requires_grad = False
-        parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
-        assert len(parameters) == 2  # fc.weight, fc.bias
-    return model
 
 def get_config(args):
     if args.training_method =="Scratch" or args.training_method =="ImageNet":
