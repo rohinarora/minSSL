@@ -10,4 +10,4 @@
 #SBATCH --gres=gpu:v100-sxm2:1
 
 source activate simclr1
-python pre_train.py --dataset-name cifar10  --arch resnet50 --comment "_cifar10_resnet50"
+python pre_train.py --dataset-name stl10  --arch resnet50 --comment "_stl10_resnet50"
