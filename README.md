@@ -1,7 +1,7 @@
 ## minSSL - A Minimal Library for Self-Supervised Learning
 
 
-### Installation
+## Installation
 
 * Create pytorch env as mentioned in https://rc-docs.northeastern.edu/en/latest/using-discovery/workingwithgpu.html#using-gpus-with-pytorch
 ```
@@ -9,7 +9,7 @@ $ conda activate <env_name>
 
 ```
 
-### Usage
+## Usage
 
 1. Pretrain 
 ```
