@@ -1,9 +1,0 @@
-INFO:root:Start training for 4 epochs.
-INFO:root:Training with gpu. args.disable_cuda flag: False.
-DEBUG:root:Epoch: 0	Train Loss: 6.756554126739502	Top1 train accuracy: 5.694901466369629	Top1 test accuracy: 10.533854484558105
-DEBUG:root:Epoch: 1	Train Loss: 6.609817028045654	Top1 train accuracy: 10.217927932739258	Top1 test accuracy: 10.872396469116211
-DEBUG:root:Epoch: 2	Train Loss: 6.46944522857666	Top1 train accuracy: 10.464638710021973	Top1 test accuracy: 10.937500953674316
-DEBUG:root:Epoch: 3	Train Loss: 6.3322672843933105	Top1 train accuracy: 10.608552932739258	Top1 test accuracy: 11.757813453674316
-INFO:root:Training has finished.
-INFO:root:Model checkpoint and metadata has been saved at runs_linear_eval/Apr30_11-33-17_d3102_default_cfg_linear_ssl_e4.
-INFO:root:Runtime is  14.632566213607788.
