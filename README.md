@@ -26,4 +26,5 @@ python downstream_eval.py --help #run options
 * Currently supports SimCLR and MoCo. More SSL algorithms coming soon !
 
 
-
+## Authors
+* Rohin Arora, [Syed Shahbaaz Ahmed](shahbaazsyed1@gmail.com) and [Varun Sahasrabudhe](https://github.com/vsahasrabudhe96)
