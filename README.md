@@ -1,7 +1,7 @@
-# minSSL - A Minimal Library for Self-Supervised Learning
+## minSSL - A Minimal Library for Self-Supervised Learning
 
 
-## Installation
+### Installation
 
 * Create pytorch env as mentioned in https://rc-docs.northeastern.edu/en/latest/using-discovery/workingwithgpu.html#using-gpus-with-pytorch
 ```
@@ -9,7 +9,7 @@ $ conda activate <env_name>
 
 ```
 
-## Usage
+### Usage
 
 1. Pretrain 
 ```
@@ -18,7 +18,7 @@ python pre_train.py #default config
 python pre_train.py -data ./datasets --dataset-name stl10 --log-every-n-steps 100 --epochs 100 
 ```
 
-2. Train/Evaluate 
+2. Evaluate on downstream tasks 
 ```
 python downstream_eval.py --help #run options
 ```
