@@ -1,4 +1,4 @@
-# minSSL - Minimal re-implementation of semi supervised learning algorithms
+# minSSL - A Minimal Library for Self-Supervised Learning
 
 
 ## Installation
