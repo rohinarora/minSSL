@@ -1,3 +1,4 @@
+runs_linear_eval
 syed
 xepoch.*
 __pycache__
@@ -7,7 +8,6 @@ checkpoint*
 data
 runs_le
 runs_fine_tune
-*sbatch
 datasets
 runs
 .vscode

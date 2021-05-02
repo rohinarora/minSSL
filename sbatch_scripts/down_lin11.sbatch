@@ -9,10 +9,6 @@
 #SBATCH --output=xepoch.%j.out
 #SBATCH --gres=gpu:a100:1
 
-
 source activate simclr1
-python pre_train.py -b 128 --comment "_b128"&
-sleep 60
-python pre_train.py -b 512 --comment "_b512"&
-sleep 60
-python pre_train.py -b 1024 --comment "_b1024"
+python downstream_eval.py --downstream_task linear_eval -tm SSL -rd "runs/May01_00-03-13_d1002_b2048" --comment "_b2048_cfg_linear_ssl"  -b 2048
+
