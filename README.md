@@ -27,4 +27,4 @@ python downstream_eval.py --help #run options
 
 
 ## Authors
-* Rohin Arora, [Syed Shahbaaz Ahmed](shahbaazsyed1@gmail.com) and [Varun Sahasrabudhe](https://github.com/vsahasrabudhe96)
+* Rohin Arora, [Syed Shahbaaz Ahmed](https://github.com/syedshahbaaz) and [Varun Sahasrabudhe](https://github.com/vsahasrabudhe96)
